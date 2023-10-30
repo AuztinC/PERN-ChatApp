@@ -5,6 +5,10 @@ import './App.css'
 import socketClient  from "socket.io-client";
 const socket = socketClient.connect("http://localhost:3000/");
 
+function talk(){
+  
+}
+
 function App() {
   const [count, setCount] = useState(0)
 
@@ -20,7 +24,7 @@ function App() {
       </div>
       <h1>Vite + React</h1>
       <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
+        <button onClick={() => setCount((talk) => count + 1)}>
           count is {count}
         </button>
         <p>
