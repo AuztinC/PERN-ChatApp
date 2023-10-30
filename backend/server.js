@@ -1,9 +1,34 @@
 const express = require('express')
 const app = express()
+const client = require('./db/client')
 const { createServer } = require('node:http')
-const { join } = require('node:path')
-const { isNullOrUndefined } = require('node:util')
 const { Server } = require('socket.io')
+app.use(express.json())
+
+const seed = async()=> {
+    SQL = `
+    DROP TABLE IF EXISTS users;
+    CREATE TABLE users(
+      id uuid,
+      name VARCHAR(20)
+    );
+    `
+    await client.query(SQL)
+}
+
+const init = async()=> {
+  await client.connect();
+  console.log('Connected to database!')
+  if(process.env.SYNC){
+    await seed()
+  }
+  console.log('Seeded data!')
+  const PORT = process.env.PORT || 3000
+
+  server.listen(PORT, () =>{
+      console.log(`listening on ${PORT}`)
+  })
+}
 
 let users = []
 
@@ -15,10 +40,6 @@ const io = new Server(server, {
     }
 })
 
-app.use('/', (req, res)=>{
-    
-})
-
 io.on('connection', (socket)=>{
     users.push(socket)
 })
@@ -27,8 +48,7 @@ io.on('disconnect', (socket)=>{
     users.find(user=>user.id===socket.id)
 })
 
-const PORT = process.env.PORT || 3000
+init()
+app.use('/api', require('./api'));
 
-server.listen(PORT, () =>{
-    console.log(`${PORT}`)
-})
+module.exports = client
