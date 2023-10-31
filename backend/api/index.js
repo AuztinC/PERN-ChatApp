@@ -3,5 +3,6 @@ const app = express.Router();
 app.use(express.json())
 
 app.use('/users', require('./users'))
+app.use('/messages', require('./messages'))
 
 module.exports = app
