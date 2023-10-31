@@ -4,7 +4,7 @@ import api from './api';
 import Register from './components/Register';
 import Login from './components/Login';
 import Chat from './components/Chat';
-const socket = io()
+const socket = io("http://localhost:3001/")
 function App() {
   const [auth, setAuth] = useState({})
   const [messages, setMessages] = useState({})
