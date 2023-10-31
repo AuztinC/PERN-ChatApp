@@ -1,15 +1,29 @@
-import Register from './components/Register.js';
-import api from './api';
-import Login from './components/Login.js';
 import React, { useState, useEffect } from 'react';
-
+import { io } from "socket.io-client";
+import api from './api';
+import Register from './components/Register';
+import Login from './components/Login';
+import Chat from './components/Chat';
+const socket = io()
 function App() {
   const [auth, setAuth] = useState({})
+  const [messages, setMessages] = useState({})
+  const [users, setAllUsers] = useState({})
+  
+  const attemptLoginWithToken = () =>{
+    api.attemptLoginWithToken(setAuth)
+  }
 
   useEffect(()=> {
-    console.log(auth)
-  }, [auth])
-
+    attemptLoginWithToken()
+    api.getAllMessages(setMessages)
+    api.getAllUsers(setAllUsers)
+  }, [])
+  
+  const createMessage =(message)=>{
+    api.createMessage(message, setMessages, messages)
+  }
+  
   const registerAccount = (credentials)=> {
     api.registerAccount(credentials);
   }
@@ -31,7 +45,12 @@ function App() {
           <Register registerAccount={registerAccount}/>
           <Login authenticate={authenticate}/>
         </>
-        : <button onClick={logout}>Logout</button>
+        : <>
+          <button onClick={ logout }>Logout</button>
+          <div>
+            <Chat auth={ auth } messages={ messages } users={ users } createMessage={ createMessage }/>
+          </div>
+        </>
       }
     </>
   );

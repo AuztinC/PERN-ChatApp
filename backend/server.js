@@ -8,20 +8,32 @@ const cors = require('cors')
 app.use(express.json())
 app.use(cors())
 const { createUser } = require('./db/users')
+const { createMessage } = require('./db/messages')
 
 const seed = async()=> {
     SQL = `
+    DROP TABLE IF EXISTS messages;
     DROP TABLE IF EXISTS users;
+    
     CREATE TABLE users(
-      id uuid,
+      id uuid PRIMARY KEY,
       username VARCHAR(20),
       password VARCHAR(100)
     );
+    
+    CREATE TABLE messages(
+      id uuid PRIMARY KEY,
+      userId uuid REFERENCES users(id) NOT NULL,
+      message TEXT
+    );
     `
     await client.query(SQL)
-    await createUser({username: "ethyl", password: "1234"})
+    const Ethyl = await createUser({username: "ethyl", password: "1234"})
+    await createMessage({userId: Ethyl.id, message: "hello World"})
 }
-
+// one chat room > many message
+// one message > many rooms
+// 
 const init = async()=> {
   await client.connect();
   console.log('Connected to database!')
