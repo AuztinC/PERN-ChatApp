@@ -7,11 +7,23 @@ const path = require('path');
 const cors = require('cors')
 app.use(express.json())
 app.use(cors())
+const server = createServer(app)
+const io = new Server(server, {
+    pingTimeout: 60000,
+    cors:{
+        origin: "http://localhost:3000",
+        method: ['GET', 'POST']
+    }
+})
 const { createUser } = require('./db/users')
 const { createMessage } = require('./db/messages')
 
+io.on('connection', (socket)=>{
+    console.log('socket connected')
+})
 const seed = async()=> {
     SQL = `
+    DROP TABLE IF EXISTS chat;
     DROP TABLE IF EXISTS messages;
     DROP TABLE IF EXISTS users;
     
@@ -24,7 +36,18 @@ const seed = async()=> {
     CREATE TABLE messages(
       id uuid PRIMARY KEY,
       userId uuid REFERENCES users(id) NOT NULL,
-      message TEXT
+      message TEXT,
+      chat uuid REFENCEES chat(id) NOT NULL,
+      created_at TIMESTAMP DEFAULT now()
+    );
+    
+    CREATE TABLE chat(
+      id uuid PRIMARY KEY,
+      chatName VARCHAR(20),
+      isGroupChat BOOLEAN DEFAULT false,
+      users JSONB,
+      latestMessage TEXT REFERENCES messages(message),
+      created_at TIMESTAMP DEFAULT now()
     );
     `
     await client.query(SQL)
@@ -41,34 +64,21 @@ const init = async()=> {
     await seed()
   }
   console.log('Seeded data!')
+  
   const PORT = process.env.PORT || 3001
-
   server.listen(PORT, () =>{
-      console.log(`listening on ${PORT}`)
+    console.log(`listening on ${PORT}`)
   })
+  
 }
 
-let users = []
-
-const server = createServer(app)
-const io = new Server(server, {
-    pingTimeout: 60000,
-    cors:{
-        origin: "http://localhost:3000",
-    }
-})
-
-io.on('connection', (socket)=>{
-    users.push(socket)
-})
-
-io.on('disconnect', (socket)=>{
-    users.find(user=>user.id===socket.id)
-})
 
 init()
 app.use('/api', require('./api'));
-const homePage = path.join(__dirname, '/frontend/public/index.html');
-app.get('/', (req, res)=> res.sendFile(homePage));
+// const homePage = path.join(__dirname, '/frontend/public/index.html');
+// app.get('/', (req, res)=> res.sendFile(homePage));
 
-module.exports = client
+module.exports = {
+  client,
+  io
+}
