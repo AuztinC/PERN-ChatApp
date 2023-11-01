@@ -23,8 +23,8 @@ io.on('connection', (socket)=>{
 })
 const seed = async()=> {
     SQL = `
-    DROP TABLE IF EXISTS chat;
     DROP TABLE IF EXISTS messages;
+    DROP TABLE IF EXISTS chat;
     DROP TABLE IF EXISTS users;
     
     CREATE TABLE users(
@@ -32,23 +32,24 @@ const seed = async()=> {
       username VARCHAR(20),
       password VARCHAR(100)
     );
-    
-    CREATE TABLE messages(
-      id uuid PRIMARY KEY,
-      userId uuid REFERENCES users(id) NOT NULL,
-      message TEXT,
-      chat uuid REFENCEES chat(id) NOT NULL,
-      created_at TIMESTAMP DEFAULT now()
-    );
-    
+
     CREATE TABLE chat(
       id uuid PRIMARY KEY,
       chatName VARCHAR(20),
       isGroupChat BOOLEAN DEFAULT false,
       users JSONB,
-      latestMessage TEXT REFERENCES messages(message),
+      --latestMessage TEXT REFERENCES messages(message),
       created_at TIMESTAMP DEFAULT now()
     );
+    
+    CREATE TABLE messages(
+      id uuid PRIMARY KEY,
+      userId uuid REFERENCES users(id) NOT NULL,
+      message TEXT,
+      --chat uuid REFERENCES chat(id) NOT NULL,
+      created_at TIMESTAMP DEFAULT now()
+    );
+    
     `
     await client.query(SQL)
     const Ethyl = await createUser({username: "ethyl", password: "1234"})

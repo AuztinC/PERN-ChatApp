@@ -51,7 +51,7 @@ const createUser = async(user)=> {
   }
   user.password = await bcrypt.hash(user.password, 5);
   const SQL = `
-  INSERT INTO users(id, username, password) VALUES($1, $2, $3) RETURNING *;
+  INSERT INTO users(id, username, password) VALUES($1, $2, $3) RETURNING id, username;
   `
   const response = await client.query(SQL, [uuidv4(), user.username, user.password])
   return response.rows[0]
@@ -59,7 +59,7 @@ const createUser = async(user)=> {
 
 const getUsers = async()=> {
   const SQL = `
-  SELECT * FROM users;
+  SELECT id, username FROM users;
   `
   const response = await client.query(SQL)
   return response.rows

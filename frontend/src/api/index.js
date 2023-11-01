@@ -4,9 +4,9 @@ const getHeaders = ()=> {
   return { headers: {authorization: window.localStorage.getItem('token')}}
 }
 
-const registerAccount = async(credentials)=> {
+const registerAccount = async({credentials, setAllUsers, users})=> {
   const response = await axios.post('http://localhost:3001/api/users', credentials)
-  console.log(response.data)
+  setAllUsers([...users, response.data])
 }
 
 const getAllUsers = async(setUsers)=>{
