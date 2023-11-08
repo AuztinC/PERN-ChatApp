@@ -11,7 +11,7 @@ const socket = io()
 function App() {
   const [auth, setAuth] = useState({})
   const [messages, setMessages] = useState([])
-  const [users, setAllUsers] = useState({})
+  const [users, setAllUsers] = useState([])
   const [allChats, setAllChats] = useState([])
   
   
@@ -47,6 +47,10 @@ function App() {
     })
     
   }
+  
+  const updateChat = async(chatId)=>{
+    await api.updateChat(chatId, setAllChats, allChats)
+  }
 
   const logout = ()=> {
     setAuth({})
@@ -61,7 +65,7 @@ function App() {
           {
             auth.id ? 
             <div className='w-1/3 border-accentColor border-4 h-[95%] rounded-xl p-3 bg-boxColor flex items-end'>
-              <Users user={ users } allChats={ allChats }/>
+              <Users users={ users } allChats={ allChats }/>
               <button className='border-accentColor border-2 p-1 h-fit' onClick={ logout }>Logout</button>
             </div>
             : 
@@ -74,8 +78,8 @@ function App() {
           }
         <div className='w-2/3 border-accentColor border-4 h-[95%] rounded-xl p-3 bg-boxColor flex justify-end flex-col'>
           <Routes>
-            <Route path={`/chat/:id`} element={ <Chat auth={ auth } messages={ messages } users={ users } createMessage={ createMessage } allChats={ allChats } /> }/>
-            <Route path={`/`} element={ <Chat auth={ auth } messages={ messages } users={ users } createMessage={ createMessage } allChats={ allChats } /> }/>
+            <Route path={`/chat/:id`} element={ <Chat auth={ auth } messages={ messages } users={ users } createMessage={ createMessage } allChats={ allChats } updateChat={ updateChat }/> }/>
+            <Route path={`/`} element={ <Chat auth={ auth } messages={ messages } users={ users } createMessage={ createMessage } allChats={ allChats } updateChat={ updateChat }/> }/>
           </Routes>
         </div>
       </div>

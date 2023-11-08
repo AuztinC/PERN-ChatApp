@@ -29,12 +29,9 @@ io.on('connection', (socket)=>{
   })
 })
 
-
-
 const { createUser } = require('./db/users')
 const { createMessage } = require('./db/messages')
-const { createChat } = require('./db/chat.js')
-
+const { createChat, createDefaultChat, updateChat } = require('./db/chat.js')
 
 const seed = async()=> {
     SQL = `
@@ -67,19 +64,23 @@ const seed = async()=> {
     );
     `
     await client.query(SQL)
-    const Ethyl = await createUser({username: "ethyl", password: "1234"})
-    const Cheryl = await createUser({username: "cheryl", password: "1234"})
-    const Monique = await createUser({username: "monique", password: "1234"})
-    const Moe = await createUser({username: "moe", password: "1"})
-    const Terry = await createUser({username: "terry", password: "1"})
-    const Joe = await createUser({username: "joe", password: "1"})
-    const Donk = await createUser({username: "donk", password: "123"})
+    const [Ethyl, Cheryl, Monique, Moe, Terry, Joe, Donk] = await Promise.all([
+      createUser({username: "ethyl", password: "1234"}),
+      createUser({username: "cheryl", password: "1234"}),
+      createUser({username: "monique", password: "1234"}),
+      createUser({username: "moe", password: "1"}),
+      createUser({username: "terry", password: "1"}),
+      createUser({username: "joe", password: "1"}),
+      createUser({username: "donk", password: "123"}),
+      
+    ])
     
-    const defaultChat = await createChat({chatName: "defaultChat", last_sent_userId: Ethyl.id, userId: Ethyl.id, users: ["Ethyl", "Moe"]})
+    const defaultChat = await createDefaultChat({chatName: "defaultChat", last_sent_userId: Ethyl.id, userId: Ethyl.id})
     const mo_tery = await createChat({chatName: "New Chat", last_sent_userId: Monique.id, userId: Monique.id, targetId: Terry.id})
     const cher_ethy = await createChat({chatName: "New Chat", last_sent_userId: Cheryl.id, userId: Ethyl.id, targetId: Cheryl.id})
     const joe_ethy = await createChat({chatName: "New Chat", last_sent_userId: Joe.id, userId: Ethyl.id, targetId: Joe.id})
-    // console.log(defaultChat)
+    // console.log(allUsers)
+    await updateChat({users: [Cheryl, Monique, Moe], id: mo_tery.id})
     await createMessage({chatId: defaultChat.id, userId: Monique.id, message: "hello World"})
     await createMessage({chatId: mo_tery.id, userId: Terry.id, message: "hello World"})
     await createMessage({chatId: cher_ethy.id, userId: Cheryl.id, message: "hello Worrrrld"})

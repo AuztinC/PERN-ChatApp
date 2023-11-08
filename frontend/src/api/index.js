@@ -52,6 +52,11 @@ const getAllChats = async(setAllChats, auth)=>{
   setAllChats(response.data)
 }
 
+const updateChat = async(setAllChats, chatId, allChats)=>{
+  const response = await axios.put(`/api/chat/${chatId}`)
+  setAllChats([...allChats, response.data])
+}
+
 
 
 
@@ -62,7 +67,8 @@ const api = {
   getAllMessages,
   getAllUsers,
   createMessage,
-  getAllChats
+  getAllChats,
+  updateChat
 }
 
 export default api;
