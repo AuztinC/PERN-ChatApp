@@ -14,8 +14,8 @@ function Chat({ auth, messages, users, createMessage, allChats }) {
       }
     }, [messages])
     
+    // console.log(users)
     if(!id && allChats.length > 0){
-      console.log(allChats)
       currChat = allChats.find(chat=>chat.chatname === "defaultChat")
       if(currChat){
         currentChatMessages = messages.filter(_message=>currChat.id === _message.chatid)
@@ -36,8 +36,8 @@ function Chat({ auth, messages, users, createMessage, allChats }) {
       createMessage(newMessage)
       setMessage('')
     }
-    console.log(currentChatMessages)
     if(!users || !messages || !currentChatMessages){
+      // console.log("somethings null")
       return null
     }
   return (
