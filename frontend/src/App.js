@@ -5,32 +5,47 @@ import Register from './components/Register';
 import Login from './components/Login';
 import Chat from './components/Chat';
 import Users from './components/Users'
-const socket = io("http://localhost:3001/")
+import { Routes, Route } from 'react-router-dom'
+const socket = io()
+// console.log(window.location.origin)
 function App() {
   const [auth, setAuth] = useState({})
-  const [messages, setMessages] = useState({})
+  const [messages, setMessages] = useState([])
   const [users, setAllUsers] = useState({})
+  const [allChats, setAllChats] = useState([])
   
-  const attemptLoginWithToken = () =>{
-    api.attemptLoginWithToken(setAuth)
+  
+  
+  const attemptLoginWithToken = async() =>{
+    await api.attemptLoginWithToken(setAuth)
   }
+  
+  useEffect(()=>{
+    api.getAllChats(setAllChats, auth)
+  }, [auth])
 
   useEffect(()=> {
     attemptLoginWithToken()
     api.getAllMessages(setMessages)
     api.getAllUsers(setAllUsers)
+    
   }, [])
+  
   
   const createMessage =(message)=>{
     api.createMessage(message, setMessages, messages)
+    socket.emit('createMessage', 'hello')
   }
   
   const registerAccount = (credentials)=> {
     api.registerAccount({credentials, setAllUsers, users});
   }
 
-  const authenticate = (credentials)=> {
-    api.authenticate({credentials, setAuth});
+  const authenticate = async(credentials)=> {
+    await api.authenticate({credentials, setAuth}).then(()=>{
+      socket.emit('login', credentials.username)
+    })
+    
   }
 
   const logout = ()=> {
@@ -46,7 +61,7 @@ function App() {
           {
             auth.id ? 
             <div className='w-1/3 border-accentColor border-4 h-[95%] rounded-xl p-3 bg-boxColor flex items-end'>
-              <Users user={ users }/>
+              <Users user={ users } allChats={ allChats }/>
               <button className='border-accentColor border-2 p-1 h-fit' onClick={ logout }>Logout</button>
             </div>
             : 
@@ -58,10 +73,14 @@ function App() {
             </div>
           }
         <div className='w-2/3 border-accentColor border-4 h-[95%] rounded-xl p-3 bg-boxColor flex justify-end flex-col'>
-          <Chat auth={ auth } messages={ messages } users={ users } createMessage={ createMessage }/>
+          <Routes>
+            <Route path={`/chat/:id`} element={ <Chat auth={ auth } messages={ messages } users={ users } createMessage={ createMessage } allChats={ allChats } /> }/>
+            <Route path={`/`} element={ <Chat auth={ auth } messages={ messages } users={ users } createMessage={ createMessage } allChats={ allChats } /> }/>
+          </Routes>
         </div>
       </div>
       }
+      
     </div>
   );
 }

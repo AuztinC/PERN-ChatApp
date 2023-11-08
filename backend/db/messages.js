@@ -4,9 +4,9 @@ const { v4: uuidv4 } = require('uuid')
 const createMessage = async(messageData)=>{
     try {
         const SQL = `
-        INSERT INTO messages(id, userId, message) VALUES($1, $2, $3) RETURNING *
+        INSERT INTO messages(id, userId, message, chatId) VALUES($1, $2, $3, $4) RETURNING *
         `;
-        const response = await client.query(SQL, [uuidv4(), messageData.userId, messageData.message])
+        const response = await client.query(SQL, [uuidv4(), messageData.userId, messageData.message, messageData.chatId])
         return response.rows[0]
     } catch (error) {
         console.log(error)

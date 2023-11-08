@@ -5,12 +5,12 @@ const getHeaders = ()=> {
 }
 
 const registerAccount = async({credentials, setAllUsers, users})=> {
-  const response = await axios.post('http://localhost:3001/api/users', credentials)
+  const response = await axios.post('/api/users', credentials)
   setAllUsers([...users, response.data])
 }
 
 const getAllUsers = async(setUsers)=>{
-  const response = await axios.get('http://localhost:3001/api/users')
+  const response = await axios.get('api/users')
   setUsers(response.data)
 }
 
@@ -18,7 +18,7 @@ const attemptLoginWithToken = async(setAuth)=> {
   const token = window.localStorage.getItem('token');
   if(token){
     try {
-      const response = await axios.get('http://localhost:3001/api/users/me', getHeaders());
+      const response = await axios.get('api/users/me', getHeaders());
       // console.log('response', response.data)
       setAuth(response.data);
     }
@@ -31,21 +31,27 @@ const attemptLoginWithToken = async(setAuth)=> {
 }
 
 const authenticate = async({credentials, setAuth})=> {
-  let response = await axios.post('http://localhost:3001/api/users/login', credentials)
+  let response = await axios.post('api/users/login', credentials)
   const { token } = response.data
   window.localStorage.setItem("token", token)
   attemptLoginWithToken(setAuth)
 }
 
 const getAllMessages = async(setMessages)=>{
-  const response = await axios.get('http://localhost:3001/api/messages')
+  const response = await axios.get('api/messages')
   setMessages(response.data)
 }
 
 const createMessage = async(message, setMessages, messages)=>{
-  const response = await axios.post('http://localhost:3001/api/messages', message, getHeaders())
+  const response = await axios.post('api/messages', message, getHeaders())
   setMessages([...messages, response.data])
 }
+
+const getAllChats = async(setAllChats, auth)=>{
+  const response = await axios.get(`api/chat/${auth.id}`)
+  setAllChats(response.data)
+}
+
 
 
 
@@ -55,7 +61,8 @@ const api = {
   attemptLoginWithToken,
   getAllMessages,
   getAllUsers,
-  createMessage
+  createMessage,
+  getAllChats
 }
 
 export default api;
