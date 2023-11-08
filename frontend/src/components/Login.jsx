@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import DefaultButton from '../styledComponents/Button'
 
 const Login = ({authenticate})=> {
   const [username, setUsername] = useState('');
@@ -17,6 +18,7 @@ const Login = ({authenticate})=> {
         <label className="flex w-full gap-5 justify-center"><h1 className="w-20 text-xl">Username:</h1><input className="border-black border-2 pl-1 rounded-md" value={username} type="text" onChange={(ev)=> {setUsername(ev.target.value)}}/></label>
         <label className="flex w-full gap-5 justify-center"><h1 className="w-20 text-xl">Password:</h1><input className="border-black border-2 pl-1 rounded-md" value={password} type="text" onChange={(ev)=> {setPassword(ev.target.value)}}/></label>
         <button className="border-black border-2 w-2/3" type='submit'>Login</button>
+        <DefaultButton color='red'> HADHASDJAS </DefaultButton>
       </form>
     </section>
   )

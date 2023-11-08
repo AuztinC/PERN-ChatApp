@@ -4,6 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "JWT=abcdefg nodemon backend/server.js",
+    "client": "node start-client.js",
     "start:dev": "JWT=abcdefg nodemon backend/server.js",
     "start:dev:sync": "SYNC=true npm run start:dev"
   },
@@ -19,5 +22,8 @@
     "pg": "^8.11.3",
     "socket.io": "^4.7.2",
     "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
   }
 }

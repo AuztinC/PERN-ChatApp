@@ -54,6 +54,7 @@ const createUser = async(user)=> {
   INSERT INTO users(id, username, password) VALUES($1, $2, $3) RETURNING id, username;
   `
   const response = await client.query(SQL, [uuidv4(), user.username, user.password])
+  // await createUsersChats(user.id)
   return response.rows[0]
 }
 
