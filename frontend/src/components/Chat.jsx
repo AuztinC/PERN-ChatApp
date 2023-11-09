@@ -8,6 +8,7 @@ function Chat({ auth, messages, users, createMessage, allChats }) {
     const [message, setMessage] = useState('')
     const dummy = useRef()
     const chatRef = useRef(null)
+
     useEffect(()=> {
       if(dummy.current){
         setTimeout(dummy.current.scrollIntoView({block: "end", inline: "end", behavior: "smooth"}), 1000)
@@ -19,11 +20,12 @@ function Chat({ auth, messages, users, createMessage, allChats }) {
       currChat = allChats.find(chat=>chat.chatname === "defaultChat")
       if(currChat){
         currentChatMessages = messages.filter(_message=>currChat.id === _message.chatid)
-        console.log(currentChatMessages)
+        // console.log(currentChatMessages)
         }
-    } else if(id && allChats.length > 0) {
+    } else if(id && allChats.length > 1) {
       currChat = allChats.find(chat=>chat.id === id)
-        currentChatMessages = messages.filter(_message=>_message.chatid === currChat.id)
+      // console.log(currChat)
+      currentChatMessages = messages.filter(_message=>_message.chatid === currChat.id)
     }
     
     function submit(ev){
@@ -43,6 +45,12 @@ function Chat({ auth, messages, users, createMessage, allChats }) {
   return (
     <div>
       <div className='overflow-y-scroll  max-h-[87vh]' id='chatBox' ref={ chatRef }>
+        {
+          // console.log(currChat)
+          // currChat.isgroup ? 
+          // <button>Add people</button>
+          // : null
+        }
         { currentChatMessages.length > 0 && users.length > 0 ? 
           currentChatMessages.map(_message=>{
             const userMessage = users.find(user=>user.id === _message.userid)

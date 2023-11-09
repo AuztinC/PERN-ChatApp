@@ -7,7 +7,7 @@ const findUserByToken = async(token)=> {
   try {
     const payload = await jwt.verify(token, process.env.JWT);
     const SQL = `
-    SELECT id, username
+    SELECT id, username, image
     FROM users
     WHERE id = $1;
     `;
@@ -60,7 +60,7 @@ const createUser = async(user)=> {
 
 const getUsers = async()=> {
   const SQL = `
-  SELECT id, username FROM users;
+  SELECT id, username, image FROM users;
   `
   const response = await client.query(SQL)
   return response.rows

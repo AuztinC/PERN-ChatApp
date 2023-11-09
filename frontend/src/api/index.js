@@ -48,7 +48,12 @@ const createMessage = async(message, setMessages, messages)=>{
 }
 
 const getAllChats = async(setAllChats, auth)=>{
-  const response = await axios.get(`api/chat/${auth.id}`)
+    const response = await axios.get(`api/chat/${auth.id}`)
+    setAllChats(response.data)
+}
+
+const getDefaultChat = async(setAllChats)=> {
+  const response = await axios.get(`api/chat`)
   setAllChats(response.data)
 }
 
@@ -57,8 +62,11 @@ const updateChat = async(setAllChats, chatId, allChats)=>{
   setAllChats([...allChats, response.data])
 }
 
-
-
+const createChat = async( allChats, setAllChats, chatData)=>{
+  const response = await axios.post('/api/chat', chatData)
+  setAllChats([...allChats, response.data])
+  return response.data
+}
 
 const api = {
   registerAccount,
@@ -68,7 +76,9 @@ const api = {
   getAllUsers,
   createMessage,
   getAllChats,
-  updateChat
+  updateChat,
+  createChat,
+  getDefaultChat
 }
 
 export default api;

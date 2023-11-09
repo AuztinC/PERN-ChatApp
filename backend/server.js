@@ -51,8 +51,10 @@ const seed = async()=> {
       id uuid PRIMARY KEY,
       chatName TEXT, 
       users json[],
-      last_sent_userId uuid REFERENCES users(id),
-      created_at TIMESTAMP DEFAULT now()
+      last_sent_username VARCHAR(20),
+      last_sent_message text,
+      created_at TIMESTAMP DEFAULT now(),
+      isGroup BOOLEAN DEFAULT false
     );
     
     CREATE TABLE messages(
@@ -75,10 +77,10 @@ const seed = async()=> {
       
     ])
     
-    const defaultChat = await createDefaultChat({chatName: "defaultChat", last_sent_userId: Ethyl.id, userId: Ethyl.id})
-    const mo_tery = await createChat({chatName: "New Chat", last_sent_userId: Monique.id, userId: Monique.id, targetId: Terry.id})
-    const cher_ethy = await createChat({chatName: "New Chat", last_sent_userId: Cheryl.id, userId: Ethyl.id, targetId: Cheryl.id})
-    const joe_ethy = await createChat({chatName: "New Chat", last_sent_userId: Joe.id, userId: Ethyl.id, targetId: Joe.id})
+    const defaultChat = await createDefaultChat({chatName: "defaultChat", userId: Ethyl.id})
+    const mo_tery = await createChat({user: Monique, targetUser: Terry})
+    const cher_ethy = await createChat({user: Ethyl, targetUser: Cheryl})
+    const joe_ethy = await createChat({user: Ethyl})
     // console.log(allUsers)
     await updateChat({users: [Cheryl, Monique, Moe], id: mo_tery.id})
     await createMessage({chatId: defaultChat.id, userId: Monique.id, message: "hello World"})

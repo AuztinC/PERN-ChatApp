@@ -14,21 +14,23 @@ function App() {
   const [users, setAllUsers] = useState([])
   const [allChats, setAllChats] = useState([])
   
-  
-  
   const attemptLoginWithToken = async() =>{
     await api.attemptLoginWithToken(setAuth)
   }
   
   useEffect(()=>{
-    api.getAllChats(setAllChats, auth)
+    if(!auth.id){
+      api.getDefaultChat(setAllChats)
+    } else{
+      console.log("FIRed")
+      api.getAllChats(setAllChats, auth)
+    }
   }, [auth])
 
   useEffect(()=> {
     attemptLoginWithToken()
     api.getAllMessages(setMessages)
     api.getAllUsers(setAllUsers)
-    
   }, [])
   
   
@@ -45,11 +47,14 @@ function App() {
     await api.authenticate({credentials, setAuth}).then(()=>{
       socket.emit('login', credentials.username)
     })
-    
   }
-  
+
   const updateChat = async(chatId)=>{
     await api.updateChat(chatId, setAllChats, allChats)
+  }
+
+  const createChat = async(chatData)=> {
+    return await api.createChat(allChats, setAllChats, chatData)
   }
 
   const logout = ()=> {
@@ -65,8 +70,7 @@ function App() {
           {
             auth.id ? 
             <div className='w-1/3 border-accentColor border-4 h-[95%] rounded-xl p-3 bg-boxColor flex items-end'>
-              <Users users={ users } allChats={ allChats }/>
-              <button className='border-accentColor border-2 p-1 h-fit' onClick={ logout }>Logout</button>
+              <Users users={ users } allChats={ allChats } createChat={ createChat } auth={ auth } logout={ logout }/>
             </div>
             : 
             <div className='w-1/3 border-accentColor border-4 h-[95%] rounded-xl p-3 bg-boxColor'>
