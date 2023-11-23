@@ -63,7 +63,7 @@ const createUser = async(user)=> {
   const newUser = await client.query(`SELECT id, username, image FROM users where id = '${response.rows[0].id}'`)
   const defaultChat = await client.query(`SELECT users, id FROM chat WHERE chatName = 'defaultChat'`)
   // console.log(user)
-  if(!defaultChat.rows[0].users.length){
+  if(!defaultChat.rows[0].users){
     SQL = `
     UPDATE chat 
     SET users = $2
