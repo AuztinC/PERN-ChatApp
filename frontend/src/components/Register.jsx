@@ -4,7 +4,8 @@ const Register = ({registerAccount})=> {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('')
-
+  
+  
   const register = async(ev)=> {
     ev.preventDefault();
     try {
@@ -13,6 +14,7 @@ const Register = ({registerAccount})=> {
       setPassword('')
       setUsername('')
     } catch (error) {
+      console.log(error)
       setError(error.response.data.message)
     }
   }

@@ -3,16 +3,18 @@ import React, { useState } from "react";
 const Login = ({authenticate})=> {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('')
 
-  const login = (ev)=> {
+  const login = async(ev)=> {
     try {
       ev.preventDefault();
       const credentials = { username, password}
-      authenticate(credentials)
+      console.log(await authenticate(credentials))
+      
       window.location.hash = '#'
       
     } catch (error) {
-      console.log(error)
+      setError(error.response.data.message)
     }
   }
 
@@ -24,6 +26,7 @@ const Login = ({authenticate})=> {
         <label className="flex w-full gap-5 justify-center"><h1 className="w-20 text-xl">Password:</h1><input className="border-black border-2 pl-1 rounded-md" value={password} type="text" onChange={(ev)=> {setPassword(ev.target.value)}}/></label>
         <button className="border-black border-2 w-2/3" type='submit'>Login</button>
       </form>
+      {error ? error : null}
     </section>
   )
 }

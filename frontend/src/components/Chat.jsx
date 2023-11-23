@@ -21,10 +21,12 @@ function Chat({ auth, messages, users, createMessage, allChats }) {
       if(currChat){
         currentChatMessages = messages.filter(_message=>currChat.id === _message.chatid)
         // console.log(currentChatMessages)
-        }
-    } else if(id && allChats.length > 0) {
+      }
+    } else if(auth.id && id && allChats.length > 0) {
       currChat = allChats.find(chat=>chat.id === id)
-      // console.log(currChat)
+      if(!currChat){
+        return 'loading chats...'
+      }
       currentChatMessages = messages.filter(_message=>_message.chatid === currChat.id)
     }
     

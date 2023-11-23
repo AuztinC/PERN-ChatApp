@@ -40,13 +40,15 @@ function App() {
   }
   
   const registerAccount = (credentials)=> {
-    api.registerAccount({credentials, setAllUsers, users});
+    return api.registerAccount({credentials, setAllUsers, users});
+    
   }
 
   const authenticate = async(credentials)=> {
-    await api.authenticate({credentials, setAuth}).then(()=>{
+    const response = await api.authenticate({credentials, setAuth}).then(()=>{
       socket.emit('login', credentials.username)
     })
+    return response
   }
 
   const updateChat = async(chatId)=>{

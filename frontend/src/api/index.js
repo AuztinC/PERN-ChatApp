@@ -5,9 +5,10 @@ const getHeaders = ()=> {
 }
 
 const registerAccount = async({credentials, setAllUsers, users})=> {
-  const response = await axios.post('/api/users', credentials)
-  setAllUsers([...users, response.data])
-  return response
+    const response = await axios.post('/api/users', credentials)
+    setAllUsers([...users, response.data])
+    return response.data
+
 }
 
 const getAllUsers = async(setUsers)=>{
@@ -36,6 +37,7 @@ const authenticate = async({credentials, setAuth})=> {
   const { token } = response.data
   window.localStorage.setItem("token", token)
   attemptLoginWithToken(setAuth)
+  return response.data
 }
 
 const getAllMessages = async(setMessages)=>{
