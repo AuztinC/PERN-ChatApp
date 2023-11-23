@@ -36,12 +36,12 @@ const createChat = async(body)=>{
 }
 const createDefaultChat = async(body)=>{
 	const { chatName } = body
-	const users = await client.query(`SELECT username, image, id FROM users`)
-	let response = await client.query(`
-	INSERT INTO chat (id, chatName, users) 
-	VALUES ($1, $2, $3)
+	// const users = await client.query(`SELECT username, image, id FROM users`)
+	const response = await client.query(`
+	INSERT INTO chat (id, chatName) 
+	VALUES ($1, $2)
 	RETURNING *
-	`, [uuidv4(), chatName, users.rows])
+	`, [uuidv4(), chatName])
 	return response.rows[0]
 	
 }

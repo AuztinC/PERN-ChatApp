@@ -7,6 +7,7 @@ const getHeaders = ()=> {
 const registerAccount = async({credentials, setAllUsers, users})=> {
   const response = await axios.post('/api/users', credentials)
   setAllUsers([...users, response.data])
+  return response
 }
 
 const getAllUsers = async(setUsers)=>{

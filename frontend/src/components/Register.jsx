@@ -3,11 +3,18 @@ import React, { useState } from "react";
 const Register = ({registerAccount})=> {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('')
 
-  const register = (ev)=> {
+  const register = async(ev)=> {
     ev.preventDefault();
-    const credentials = { username: username, password: password}
-    registerAccount(credentials)
+    try {
+      const credentials = { username: username, password: password}
+      await registerAccount(credentials)
+      setPassword('')
+      setUsername('')
+    } catch (error) {
+      setError(error.response.data.message)
+    }
   }
 
   return (
@@ -18,6 +25,7 @@ const Register = ({registerAccount})=> {
         <label className="flex w-full gap-5 justify-center"><h1 className="w-20 text-xl">Password:</h1><input className="border-black border-2 pl-1 rounded-md" value={password} type="text" onChange={(ev)=> {setPassword(ev.target.value)}}/></label>
         <button className="border-black border-2 w-2/3" type='submit'>Create Account</button>
       </form>
+    { error ? error : null}
     </section>
   )
 }
