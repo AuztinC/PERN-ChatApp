@@ -66,6 +66,7 @@ const seed = async()=> {
     );
     `
     await client.query(SQL)
+    const defaultChat = await createDefaultChat({chatName: "defaultChat"})
     const [Ethyl, Cheryl, Monique, Moe, Terry, Joe, Donk] = await Promise.all([
       createUser({username: "ethyl", password: "1234"}),
       createUser({username: "cheryl", password: "1234"}),
@@ -77,10 +78,9 @@ const seed = async()=> {
       
     ])
     
-    const defaultChat = await createDefaultChat({chatName: "defaultChat", userId: Ethyl.id})
     const mo_tery = await createChat({user: Monique, targetUser: Terry})
     const cher_ethy = await createChat({user: Ethyl, targetUser: Cheryl})
-    const joe_ethy = await createChat({user: Ethyl})
+    const joe_ethy = await createChat({user: Ethyl, targetUser: Joe})
     // console.log(allUsers)
     await updateChat({users: [Cheryl, Monique, Moe], id: mo_tery.id})
     await createMessage({chatId: defaultChat.id, userId: Monique.id, message: "hello World"})

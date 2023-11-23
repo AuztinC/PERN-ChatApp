@@ -22,7 +22,7 @@ function Chat({ auth, messages, users, createMessage, allChats }) {
         currentChatMessages = messages.filter(_message=>currChat.id === _message.chatid)
         // console.log(currentChatMessages)
         }
-    } else if(id && allChats.length > 1) {
+    } else if(id && allChats.length > 0) {
       currChat = allChats.find(chat=>chat.id === id)
       // console.log(currChat)
       currentChatMessages = messages.filter(_message=>_message.chatid === currChat.id)

@@ -22,7 +22,7 @@ function App() {
     if(!auth.id){
       api.getDefaultChat(setAllChats)
     } else{
-      console.log("FIRed")
+      // console.log("FIRed")
       api.getAllChats(setAllChats, auth)
     }
   }, [auth])
@@ -60,6 +60,7 @@ function App() {
   const logout = ()=> {
     setAuth({})
     window.localStorage.removeItem('token')
+    window.location.hash = '#'
   }
 
   return (

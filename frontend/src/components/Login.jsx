@@ -5,9 +5,15 @@ const Login = ({authenticate})=> {
   const [password, setPassword] = useState('');
 
   const login = (ev)=> {
-    ev.preventDefault();
-    const credentials = { username, password}
-    authenticate(credentials)
+    try {
+      ev.preventDefault();
+      const credentials = { username, password}
+      authenticate(credentials)
+      window.location.hash = '#'
+      
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   return (
