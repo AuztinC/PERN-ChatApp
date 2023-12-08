@@ -6,7 +6,7 @@ const createMessage = async(messageData)=>{
         const SQL = `
         INSERT INTO messages(id, userId, message, chatId) VALUES($1, $2, $3, $4) RETURNING *
         `;
-        const response = await client.query(SQL, [uuidv4(), messageData.userId, messageData.message, messageData.chatId])
+        const response = await client.query(SQL, [uuidv4(), messageData.userid, messageData.message, messageData.chatid])
         return response.rows[0]
     } catch (error) {
         console.log(error)

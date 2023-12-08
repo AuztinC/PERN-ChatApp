@@ -8,6 +8,10 @@ const path = require('path');
 app.use(express.json())
 
 
+const { createUser } = require('./db/users')
+const { createMessage } = require('./db/messages')
+const { createChat, createDefaultChat, updateChat, getSingleChat } = require('./db/chat.js')
+
 if (process.env.NODE_ENV === "production") {
   app.use(express.static("frontend/build"));
 }
@@ -17,21 +21,37 @@ httpServer.listen(PORT, () =>{
   console.log(`listening on ${PORT}`)
 })
 
+global.activeUsers = new Map()
 
 io.on('connection', (socket)=>{
-  console.log('socket connected')
-  socket.on('createMessage', (data)=>{
-    // console.log(data)
+  
+  socket.on('login', (auth)=>{
+    activeUsers.set(auth.id, socket.id)
+    // console.log("user login", activeUsers)
   })
   
-  socket.on('login', (credentials)=>{
-    console.log(credentials)
+  
+  socket.on('sendingMessage', async(newMessage)=>{
+    const singleChat = await getSingleChat(newMessage.chatid)
+    console.log(singleChat.users.forEach(user=>{
+      const sendUserSocket = activeUsers.get(user.id)
+      if(sendUserSocket){
+        socket.to(sendUserSocket).emit("messageRecieved", newMessage)
+        // console.log("user is online", sendUserSocket)
+      } else {
+        // console.log("user is offline")
+      }
+    }))
+    socket.broadcast.emit("recieveMessage", newMessage)
+  })
+  
+  
+  socket.on('userTyping', (chatInfo)=>{
+    socket.broadcast.emit("userTyping", chatInfo)
   })
 })
 
-const { createUser } = require('./db/users')
-const { createMessage } = require('./db/messages')
-const { createChat, createDefaultChat, updateChat } = require('./db/chat.js')
+
 
 const seed = async()=> {
     SQL = `

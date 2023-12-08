@@ -1,21 +1,51 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { useParams } from 'react-router-dom'
+import { socket } from '../socket'
+import Picker from 'emoji-picker-react'
+import { BsEmojiSmileFill } from 'react-icons/bs'
+import { IconContext } from "react-icons";
 
 function Chat({ auth, messages, users, createMessage, allChats }) {
     const { id } = useParams()
     let currChat = null
     let currentChatMessages = null
     const [message, setMessage] = useState('')
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false)
     const dummy = useRef()
     const chatRef = useRef(null)
 
     useEffect(()=> {
-      if(dummy.current){
+      if(dummy.current && currChat.id === id){
         setTimeout(dummy.current.scrollIntoView({block: "end", inline: "end", behavior: "smooth"}), 1000)
+      }
+      if(currChat){
+        console.log(messages)
+        currentChatMessages = messages.filter(_message=>_message.chatid === currChat.id)
       }
     }, [messages])
     
-    // console.log(users)
+    useEffect(()=>{
+      if(currChat){
+        socket.emit("userTyping", {user: auth.username, chatId: currChat.id})
+        
+      }
+      // console.log(socket)
+    }, [message, auth.username, currChat])
+    
+    // socket.on('recieveMessage', newMessage=>{
+    //   if(allChats.find(chat=>chat.id === newMessage.chatId)){
+    //     console.log("otheruser")
+    //     if(currChat && currChat.id === newMessage.chatId) {
+          
+    //       console.log("same")
+    //     }
+    //   } 
+    // })
+    
+    socket.on("userTyping", chatInfo=>{
+      // console.log(chatInfo)
+    })
+    
     if(!id && allChats.length > 0){
       currChat = allChats.find(chat=>chat.chatname === "defaultChat")
       if(currChat){
@@ -25,16 +55,23 @@ function Chat({ auth, messages, users, createMessage, allChats }) {
     } else if(auth.id && id && allChats.length > 0) {
       currChat = allChats.find(chat=>chat.id === id)
       if(!currChat){
-        return 'loading chats...'
+        return 'loading chat...'
       }
       currentChatMessages = messages.filter(_message=>_message.chatid === currChat.id)
     }
-    
+    function handleEmojiWindow(){
+      setShowEmojiPicker(!showEmojiPicker)
+    }
+    function handleEmoji(emoji){
+      let msg = message;
+      msg += emoji.emoji
+      setMessage(msg)
+    }
     function submit(ev){
       ev.preventDefault()
       const newMessage = {
-        userId: auth.id,
-        chatId: currChat.id,
+        userid: auth.id,
+        chatid: currChat.id,
         message
       }
       createMessage(newMessage)
@@ -66,12 +103,32 @@ function Chat({ auth, messages, users, createMessage, allChats }) {
             )
           }): null
         }
+        {/* Check for user typing, display bubbles */}
+        {
+          
+        }
+        {/* dummy ref for scrolling */}
         <div ref={ dummy }></div>
       </div>
+      {/* Check if logged in, display input form */}
       {
         auth.id ? 
         <form onSubmit={ submit } className='flex justify-center h-10'>
-          <input className='w-full pl-2' type='text' placeholder='message' value={message} onChange={(ev)=>setMessage(ev.target.value)}/>
+          <div className='relative border-2 border-transparent p-0.5 mr-5 rounded-[50%] bg-black flex items-center pointer-events-hand hover:border-accentColor transition ease-in-out delay-150' onClick={handleEmojiWindow}>
+            <IconContext.Provider value={{ color: "#ffff00c8", size: "2em" }}>
+              <div>
+                <BsEmojiSmileFill />
+              </div>
+            </IconContext.Provider>
+            {
+              showEmojiPicker ? 
+              <div className='absolute -top-[455px] border-black border-2'>
+                <Picker onEmojiClick={handleEmoji}/>
+              </div>
+              :null
+            }
+          </div>
+          <input className='w-full pl-2 focus:border-accentColor' type='text' placeholder='message' value={message} onChange={(ev)=>setMessage(ev.target.value)}/>
           <button className='border-accentColor border-2 px-2 hover:bg-accentColor'>Send</button>
         </form>
         : null

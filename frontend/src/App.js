@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { io } from "socket.io-client";
+// import { io } from "socket.io-client";
 import api from './api';
 import Register from './components/Register';
 import Login from './components/Login';
 import Chat from './components/Chat';
 import Users from './components/Users'
 import { Routes, Route } from 'react-router-dom'
-const socket = io()
-// console.log(window.location.origin)
+// const socket = io()
+import { socket } from './socket';
 function App() {
   const [auth, setAuth] = useState({})
   const [messages, setMessages] = useState([])
+  const [notifications, setNotifications] = useState([])
   const [users, setAllUsers] = useState([])
   const [allChats, setAllChats] = useState([])
   
@@ -18,12 +19,24 @@ function App() {
     await api.attemptLoginWithToken(setAuth)
   }
   
+  
+  socket.on('recieveMessage', newMessage=>{
+    // if(allChats.find(chat=>chat.id === newMessage.chatId)){
+    //   setMessageRecieved(true)
+    //   api.getAllMessages(setMessages)
+    // }
+    // api.getAllMessages(setMessages)
+    setMessages([...messages, newMessage])
+    // console.log(newMessage)
+  })
+  
   useEffect(()=>{
     if(!auth.id){
       api.getDefaultChat(setAllChats)
     } else{
       // console.log("FIRed")
       api.getAllChats(setAllChats, auth)
+      socket.emit('login', auth)
     }
   }, [auth])
 
@@ -36,7 +49,7 @@ function App() {
   
   const createMessage =(message)=>{
     api.createMessage(message, setMessages, messages)
-    socket.emit('createMessage', 'hello')
+    socket.emit('sendingMessage', message)
   }
   
   const registerAccount = (credentials)=> {
@@ -46,7 +59,6 @@ function App() {
 
   const authenticate = async(credentials)=> {
     const response = await api.authenticate({credentials, setAuth}).then(()=>{
-      socket.emit('login', credentials.username)
     })
     return response
   }

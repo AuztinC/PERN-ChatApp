@@ -10,6 +10,14 @@ const getAllChats = async(id) =>{
   return usersChats
 }
 
+const getSingleChat = async(id) =>{
+  SQL = `
+  SELECT * FROM chat WHERE id = $1
+  `
+  const response = await client.query(SQL, [id])
+  return response.rows[0]
+}
+
 const getDefaultChat = async()=> {
   const SQL = `SELECT * FROM chat WHERE chatName = 'defaultChat'`
   const response = await client.query(SQL)
@@ -61,5 +69,6 @@ module.exports = {
 	getAllChats,
 	createDefaultChat,
 	updateChat,
-  getDefaultChat
+  getDefaultChat,
+  getSingleChat
 }
