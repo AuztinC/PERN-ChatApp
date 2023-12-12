@@ -33,7 +33,7 @@ io.on('connection', (socket)=>{
   
   socket.on('sendingMessage', async(newMessage)=>{
     const singleChat = await getSingleChat(newMessage.chatid)
-    console.log(singleChat.users.forEach(user=>{
+    singleChat.users.forEach(user=>{
       const sendUserSocket = activeUsers.get(user.id)
       if(sendUserSocket){
         socket.to(sendUserSocket).emit("messageRecieved", newMessage)
@@ -41,7 +41,7 @@ io.on('connection', (socket)=>{
       } else {
         // console.log("user is offline")
       }
-    }))
+    })
     socket.broadcast.emit("recieveMessage", newMessage)
   })
   

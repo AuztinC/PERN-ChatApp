@@ -35,10 +35,10 @@ const createChat = async(body)=>{
     `, [uuidv4(), [user, targetUser]])
   } else {
     response = await client.query(`
-    INSERT INTO chat (id, users, chatName) 
-    VALUES ($1, $2, $3)
+    INSERT INTO chat (id, users, chatName, isGroup) 
+    VALUES ($1, $2, $3, $4)
     RETURNING *
-    `, [uuidv4(), [user], "New Chat"])
+    `, [uuidv4(), [user], "New Chat", true])
   }
 	return response.rows[0]
 }

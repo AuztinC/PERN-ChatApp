@@ -637,6 +637,10 @@ video {
   height: 2.5rem;
 }
 
+.h-\[10px\] {
+  height: 10px;
+}
+
 .h-\[95\%\] {
   height: 95%;
 }
@@ -856,6 +860,11 @@ video {
 
 .font-extrabold {
   font-weight: 800;
+}
+
+.text-white {
+  --tw-text-opacity: 1;
+  color: rgb(255 255 255 / var(--tw-text-opacity));
 }
 
 .shadow-lg {

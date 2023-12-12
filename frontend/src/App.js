@@ -26,7 +26,7 @@ function App() {
     //   api.getAllMessages(setMessages)
     // }
     // api.getAllMessages(setMessages)
-    setMessages([...messages, newMessage])
+    // setMessages([...messages, newMessage])
     // console.log(newMessage)
   })
   
@@ -80,11 +80,15 @@ function App() {
   return (
     <div className='bg-backgroundColor h-screen w-screen'>
       {
+        auth.username ? <p className='w-full text-center text-white h-[10px]'>{auth.username.toUpperCase()}</p>
+        :null
+      }
+      {
       <div className='h-full flex items-center pl-5 pr-5 gap-5'>
-
           {
             auth.id ? 
             <div className='w-1/3 border-accentColor border-4 h-[95%] rounded-xl p-3 bg-boxColor flex items-end'>
+              
               <Users users={ users } allChats={ allChats } createChat={ createChat } auth={ auth } logout={ logout }/>
             </div>
             : 
@@ -97,8 +101,8 @@ function App() {
           }
         <div className='w-2/3 border-accentColor border-4 h-[95%] rounded-xl p-3 bg-boxColor flex justify-end flex-col'>
           <Routes>
-            <Route path={`/chat/:id`} element={ <Chat auth={ auth } messages={ messages } users={ users } createMessage={ createMessage } allChats={ allChats } updateChat={ updateChat }/> }/>
-            <Route path={`/`} element={ <Chat auth={ auth } messages={ messages } users={ users } createMessage={ createMessage } allChats={ allChats } updateChat={ updateChat }/> }/>
+            <Route path={`/chat/:id`} element={ <Chat auth={ auth } setMessages={ setMessages } messages={ messages } users={ users } setAllUsers={ setAllUsers } createMessage={ createMessage } allChats={ allChats } updateChat={ updateChat }/> }/>
+            <Route path={`/`} element={ <Chat auth={ auth } setMessages={ setMessages } messages={ messages } users={ users } createMessage={ createMessage } allChats={ allChats } updateChat={ updateChat }/> }/>
           </Routes>
         </div>
       </div>

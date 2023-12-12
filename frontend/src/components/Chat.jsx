@@ -5,7 +5,7 @@ import Picker from 'emoji-picker-react'
 import { BsEmojiSmileFill } from 'react-icons/bs'
 import { IconContext } from "react-icons";
 
-function Chat({ auth, messages, users, createMessage, allChats }) {
+function Chat({ auth, messages, setMessages, users, createMessage, allChats, setAllUsers }) {
     const { id } = useParams()
     let currChat = null
     let currentChatMessages = null
@@ -13,13 +13,15 @@ function Chat({ auth, messages, users, createMessage, allChats }) {
     const [showEmojiPicker, setShowEmojiPicker] = useState(false)
     const dummy = useRef()
     const chatRef = useRef(null)
+    const incMessageRef = useRef(null)
 
     useEffect(()=> {
-      if(dummy.current && currChat.id === id){
+      if(incMessageRef.current?.chatid === id && dummy.current){
         setTimeout(dummy.current.scrollIntoView({block: "end", inline: "end", behavior: "smooth"}), 1000)
+      } else {
+        // set new notification
       }
       if(currChat){
-        console.log(messages)
         currentChatMessages = messages.filter(_message=>_message.chatid === currChat.id)
       }
     }, [messages])
@@ -27,20 +29,21 @@ function Chat({ auth, messages, users, createMessage, allChats }) {
     useEffect(()=>{
       if(currChat){
         socket.emit("userTyping", {user: auth.username, chatId: currChat.id})
-        
+        console.log(currChat);
       }
       // console.log(socket)
-    }, [message, auth.username, currChat])
+    }, [message])
     
-    // socket.on('recieveMessage', newMessage=>{
-    //   if(allChats.find(chat=>chat.id === newMessage.chatId)){
-    //     console.log("otheruser")
-    //     if(currChat && currChat.id === newMessage.chatId) {
-          
-    //       console.log("same")
-    //     }
-    //   } 
-    // })
+    useEffect(()=>{
+      if(id && dummy.current){
+      dummy.current.scrollIntoView({block: "end", inline: "end", behavior: "smooth"})
+      } 
+    }, [id])
+    socket.on('recieveMessage', newMessage=>{
+      setMessages([...messages, newMessage])
+      incMessageRef.current = newMessage;
+      
+    })
     
     socket.on("userTyping", chatInfo=>{
       // console.log(chatInfo)
@@ -91,11 +94,11 @@ function Chat({ auth, messages, users, createMessage, allChats }) {
           // : null
         }
         { currentChatMessages.length > 0 && users.length > 0 ? 
-          currentChatMessages.map(_message=>{
+          currentChatMessages.map((_message, i)=>{
             const userMessage = users.find(user=>user.id === _message.userid)
             
             return (
-            <div  key={_message.id} className={`w-full flex my-3 ${ userMessage.id === auth.id ? 'justify-end' : 'justify-start'}`}>
+            <div  key={i} className={`w-full flex my-3 ${ userMessage.id === auth.id ? 'justify-end' : 'justify-start'}`}>
               <div className={`w-fit p-2 rounded-xl flex ${ userMessage.id === auth.id ? 'bg-sendColor' : 'bg-receivedColor'}`}>
                 <span className='font-bold'>{ userMessage.username }</span>: { _message.message }
               </div>
