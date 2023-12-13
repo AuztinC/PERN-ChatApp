@@ -44,7 +44,8 @@ const createChat = async(body)=>{
 }
 const createDefaultChat = async(body)=>{
 	const { chatName } = body
-	// const users = await client.query(`SELECT username, image, id FROM users`)
+	const users = await client.query(`SELECT username, image, id FROM users`)
+  // console.log(users)
 	const response = await client.query(`
 	INSERT INTO chat (id, chatName) 
 	VALUES ($1, $2)
@@ -61,6 +62,7 @@ const updateChat = async(body) =>{
 	WHERE id = $1
 	`
 	const response = await client.query(SQL, [body.id, body.users])
+  console.log(response.rows)
 	return response.rows[0]
 }
 

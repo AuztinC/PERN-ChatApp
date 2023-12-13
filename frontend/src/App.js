@@ -29,23 +29,31 @@ function App() {
     // setMessages([...messages, newMessage])
     // console.log(newMessage)
   })
-  
-  useEffect(()=>{
-    if(!auth.id){
-      api.getDefaultChat(setAllChats)
-    } else{
-      // console.log("FIRed")
-      api.getAllChats(setAllChats, auth)
-      socket.emit('login', auth)
-    }
-  }, [auth])
-
   useEffect(()=> {
     attemptLoginWithToken()
+    api.getDefaultChat(setAllChats)
     api.getAllMessages(setMessages)
     api.getAllUsers(setAllUsers)
   }, [])
   
+  useEffect(()=>{
+    if(!auth.id){
+      // api.getDefaultChat(setAllChats)
+    } else{
+      // console.log("FIRed")
+      api.getAllMessages(setMessages)
+      api.getAllUsers(setAllUsers)
+      api.getAllChats(setAllChats, auth)
+      socket.emit('login', auth)
+    }
+  }, [auth])
+  
+  useEffect(()=>{
+    if(!auth.id && allChats[0]){
+      // console.log(allChats)
+      // window.location.hash = allChats[0].id;
+    }
+  }, [allChats])
   
   const createMessage =(message)=>{
     api.createMessage(message, setMessages, messages)
@@ -92,7 +100,7 @@ function App() {
               <Users users={ users } allChats={ allChats } createChat={ createChat } auth={ auth } logout={ logout }/>
             </div>
             : 
-            <div className='w-1/3 border-accentColor border-4 h-[95%] rounded-xl p-3 bg-boxColor'>
+            <div className='w-1/3 border-accentColor border-4 h-[95%] rounded-xl p-3 bg-boxColor  overflow-scroll'>
               <div className='flex flex-col gap-20'>
                 <Login authenticate={authenticate}/>
                 <Register registerAccount={registerAccount}/>

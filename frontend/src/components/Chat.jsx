@@ -11,34 +11,49 @@ function Chat({ auth, messages, setMessages, users, createMessage, allChats, set
     let currentChatMessages = null
     const [message, setMessage] = useState('')
     const [showEmojiPicker, setShowEmojiPicker] = useState(false)
+    const [typer, setTyper] = useState({});
     const dummy = useRef()
     const chatRef = useRef(null)
     const incMessageRef = useRef(null)
 
     useEffect(()=> {
-      if(incMessageRef.current?.chatid === id && dummy.current){
+      // console.log(incMessageRef.current)
+      if(incMessageRef.current?.chatid === id && dummy.current || currChat && !id && incMessageRef.current?.chatid === currChat?.id){
         setTimeout(dummy.current.scrollIntoView({block: "end", inline: "end", behavior: "smooth"}), 1000)
+        currentChatMessages = messages.filter(_message=>_message.chatid === currChat.id)
       } else {
         // set new notification
-      }
-      if(currChat){
-        currentChatMessages = messages.filter(_message=>_message.chatid === currChat.id)
       }
     }, [messages])
     
     useEffect(()=>{
-      if(currChat){
+      if(message != "" && currChat){
         socket.emit("userTyping", {user: auth.username, chatId: currChat.id})
-        console.log(currChat);
       }
-      // console.log(socket)
     }, [message])
     
     useEffect(()=>{
       if(id && dummy.current){
       dummy.current.scrollIntoView({block: "end", inline: "end", behavior: "smooth"})
       } 
+
     }, [id])
+    useEffect(()=>{
+      if(allChats.length > 0){
+        currChat = allChats.find(chat=>chat.chatname === "defaultChat")
+        if(currChat){
+          currentChatMessages = messages.filter(_message=>currChat.id === _message.chatid)
+        }
+      }
+    }, [allChats])
+    useEffect(()=>{
+      console.log(currChat, typer)
+      if(currChat?.id === typer.chatid){
+      }
+    }, [typer])
+    
+    
+    
     socket.on('recieveMessage', newMessage=>{
       setMessages([...messages, newMessage])
       incMessageRef.current = newMessage;
@@ -46,14 +61,13 @@ function Chat({ auth, messages, setMessages, users, createMessage, allChats, set
     })
     
     socket.on("userTyping", chatInfo=>{
-      // console.log(chatInfo)
+      setTyper(chatInfo)
     })
     
     if(!id && allChats.length > 0){
       currChat = allChats.find(chat=>chat.chatname === "defaultChat")
       if(currChat){
         currentChatMessages = messages.filter(_message=>currChat.id === _message.chatid)
-        // console.log(currentChatMessages)
       }
     } else if(auth.id && id && allChats.length > 0) {
       currChat = allChats.find(chat=>chat.id === id)
@@ -79,6 +93,7 @@ function Chat({ auth, messages, setMessages, users, createMessage, allChats, set
       }
       createMessage(newMessage)
       setMessage('')
+      incMessageRef.current = newMessage
     }
     if(!users || !messages || !currentChatMessages){
       // console.log("somethings null")
@@ -88,10 +103,9 @@ function Chat({ auth, messages, setMessages, users, createMessage, allChats, set
     <div>
       <div className='overflow-y-scroll  max-h-[87vh]' id='chatBox' ref={ chatRef }>
         {
-          // console.log(currChat)
-          // currChat.isgroup ? 
-          // <button>Add people</button>
-          // : null
+          currChat.isgroup ? 
+          <button>Add people</button> // add new people to your group chat
+          : null
         }
         { currentChatMessages.length > 0 && users.length > 0 ? 
           currentChatMessages.map((_message, i)=>{

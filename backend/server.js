@@ -97,12 +97,14 @@ const seed = async()=> {
       createUser({username: "donk", password: "123"}),
       
     ])
-    
+    await updateChat({users: [Ethyl, Cheryl, Monique, Moe, Terry, Joe, Donk], id: defaultChat.id})
+    console.log(Ethyl)
+    // await updateChat({id: defaultChat.id users:})
     const mo_tery = await createChat({user: Monique, targetUser: Terry})
     const cher_ethy = await createChat({user: Ethyl, targetUser: Cheryl})
     const joe_ethy = await createChat({user: Ethyl, targetUser: Joe})
-    // console.log(allUsers)
     await updateChat({users: [Cheryl, Monique, Moe], id: mo_tery.id})
+    // console.log(allUsers)
     await createMessage({chatId: defaultChat.id, userId: Monique.id, message: "hello World"})
     await createMessage({chatId: mo_tery.id, userId: Terry.id, message: "hello World"})
     await createMessage({chatId: cher_ethy.id, userId: Cheryl.id, message: "hello Worrrrld"})

@@ -57,31 +57,28 @@ const createUser = async(user)=> {
   }
   user.password = await bcrypt.hash(user.password, 5);
   let SQL = `
-  INSERT INTO users(id, username, password, image) VALUES($1, $2, $3, $4) RETURNING id, username;
+  INSERT INTO users(id, username, password, image) VALUES($1, $2, $3, $4) RETURNING id, username, image;
   `
   const response = await client.query(SQL, [uuidv4(), user.username, user.password, user.image])
-  const newUser = await client.query(`SELECT id, username, image FROM users where id = '${response.rows[0].id}'`)
+  // console.log(response.rows)
+  // const newUser = await client.query(`SELECT id, username, image FROM users where id = '${response.rows[0].id}'`)
+  // {id: response.rows[0].id, username: user.username, image: user.image}
+  
   const defaultChat = await client.query(`SELECT users, id FROM chat WHERE chatName = 'defaultChat'`)
-  // console.log(user)
-  if(!defaultChat.rows[0].users){
+  if (defaultChat.rows[0].users){
     SQL = `
     UPDATE chat 
     SET users = $2
     WHERE id = $1
+    RETURNING *
     `
-    await client.query(SQL, [defaultChat.rows[0].id, [newUser.rows[0]]])
-  } else {
-    SQL = `
-    UPDATE chat 
-    SET users = $2
-    WHERE id = $1
-    `
-    await client.query(SQL, [defaultChat.rows[0].id, [...defaultChat.rows[0].users, newUser.rows[0]]])
+    let defaultch = await client.query(SQL, [defaultChat.rows[0].id, [...defaultChat.rows[0].users, response.rows[0]]])
+    // console.log("adding to users", defaultch.rows[0].users)
   }
-
+  // console.log('in create', response.rows[0])
   return response.rows[0]
 }
-
+// create default chat => create users => update default chat =>
 const getUsers = async()=> {
   const SQL = `
   SELECT id, username, image FROM users;
