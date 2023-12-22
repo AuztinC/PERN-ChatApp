@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { io } from "socket.io-client";
+// import { io } from "socket.io-client";
 import api from './api';
 import Register from './components/Register';
 import Login from './components/Login';
 import Chat from './components/Chat';
 import Users from './components/Users'
 import { Routes, Route } from 'react-router-dom'
-const socket = io()
-// console.log(window.location.origin)
+// const socket = io()
+import { socket } from './socket';
 function App() {
   const [auth, setAuth] = useState({})
   const [messages, setMessages] = useState([])
+  const [notifications, setNotifications] = useState([])
   const [users, setAllUsers] = useState([])
   const [allChats, setAllChats] = useState([])
   
@@ -18,25 +19,45 @@ function App() {
     await api.attemptLoginWithToken(setAuth)
   }
   
-  useEffect(()=>{
-    if(!auth.id){
-      api.getDefaultChat(setAllChats)
-    } else{
-      // console.log("FIRed")
-      api.getAllChats(setAllChats, auth)
-    }
-  }, [auth])
-
+  
+  socket.on('recieveMessage', newMessage=>{
+    // if(allChats.find(chat=>chat.id === newMessage.chatId)){
+    //   setMessageRecieved(true)
+    //   api.getAllMessages(setMessages)
+    // }
+    // api.getAllMessages(setMessages)
+    // setMessages([...messages, newMessage])
+    // console.log(newMessage)
+  })
   useEffect(()=> {
     attemptLoginWithToken()
+    api.getDefaultChat(setAllChats)
     api.getAllMessages(setMessages)
     api.getAllUsers(setAllUsers)
   }, [])
   
+  useEffect(()=>{
+    if(!auth.id){
+      // api.getDefaultChat(setAllChats)
+    } else{
+      // console.log("FIRed")
+      api.getAllMessages(setMessages)
+      api.getAllUsers(setAllUsers)
+      api.getAllChats(setAllChats, auth)
+      socket.emit('login', auth)
+    }
+  }, [auth])
+  
+  useEffect(()=>{
+    if(!auth.id && allChats[0]){
+      // console.log(allChats)
+      // window.location.hash = allChats[0].id;
+    }
+  }, [allChats])
   
   const createMessage =(message)=>{
     api.createMessage(message, setMessages, messages)
-    socket.emit('createMessage', 'hello')
+    socket.emit('sendingMessage', message)
   }
   
   const registerAccount = (credentials)=> {
@@ -46,7 +67,6 @@ function App() {
 
   const authenticate = async(credentials)=> {
     const response = await api.authenticate({credentials, setAuth}).then(()=>{
-      socket.emit('login', credentials.username)
     })
     return response
   }
@@ -68,15 +88,19 @@ function App() {
   return (
     <div className='bg-backgroundColor h-screen w-screen'>
       {
+        auth.username ? <p className='w-full text-center text-white h-[10px]'>{auth.username.toUpperCase()}</p>
+        :null
+      }
+      {
       <div className='h-full flex items-center pl-5 pr-5 gap-5'>
-
           {
             auth.id ? 
             <div className='w-1/3 border-accentColor border-4 h-[95%] rounded-xl p-3 bg-boxColor flex items-end'>
+              
               <Users users={ users } allChats={ allChats } createChat={ createChat } auth={ auth } logout={ logout }/>
             </div>
             : 
-            <div className='w-1/3 border-accentColor border-4 h-[95%] rounded-xl p-3 bg-boxColor'>
+            <div className='w-1/3 border-accentColor border-4 h-[95%] rounded-xl p-3 bg-boxColor  overflow-scroll'>
               <div className='flex flex-col gap-20'>
                 <Login authenticate={authenticate}/>
                 <Register registerAccount={registerAccount}/>
@@ -85,8 +109,8 @@ function App() {
           }
         <div className='w-2/3 border-accentColor border-4 h-[95%] rounded-xl p-3 bg-boxColor flex justify-end flex-col'>
           <Routes>
-            <Route path={`/chat/:id`} element={ <Chat auth={ auth } messages={ messages } users={ users } createMessage={ createMessage } allChats={ allChats } updateChat={ updateChat }/> }/>
-            <Route path={`/`} element={ <Chat auth={ auth } messages={ messages } users={ users } createMessage={ createMessage } allChats={ allChats } updateChat={ updateChat }/> }/>
+            <Route path={`/chat/:id`} element={ <Chat auth={ auth } setMessages={ setMessages } messages={ messages } users={ users } setAllUsers={ setAllUsers } createMessage={ createMessage } allChats={ allChats } updateChat={ updateChat }/> }/>
+            <Route path={`/`} element={ <Chat auth={ auth } setMessages={ setMessages } messages={ messages } users={ users } createMessage={ createMessage } allChats={ allChats } updateChat={ updateChat }/> }/>
           </Routes>
         </div>
       </div>

@@ -1,3 +1,4 @@
+const app = require('.');
 const { findUserByToken } = require('../db/users');
 
 const isLoggedIn = async(req, res, next)=> {
@@ -10,6 +11,9 @@ const isLoggedIn = async(req, res, next)=> {
     next(ex);
   }
 };
+
+
+
 
 module.exports = {
     isLoggedIn

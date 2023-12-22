@@ -10,6 +10,14 @@ const getAllChats = async(id) =>{
   return usersChats
 }
 
+const getSingleChat = async(id) =>{
+  SQL = `
+  SELECT * FROM chat WHERE id = $1
+  `
+  const response = await client.query(SQL, [id])
+  return response.rows[0]
+}
+
 const getDefaultChat = async()=> {
   const SQL = `SELECT * FROM chat WHERE chatName = 'defaultChat'`
   const response = await client.query(SQL)
@@ -27,16 +35,17 @@ const createChat = async(body)=>{
     `, [uuidv4(), [user, targetUser]])
   } else {
     response = await client.query(`
-    INSERT INTO chat (id, users, chatName) 
-    VALUES ($1, $2, $3)
+    INSERT INTO chat (id, users, chatName, isGroup) 
+    VALUES ($1, $2, $3, $4)
     RETURNING *
-    `, [uuidv4(), [user], "New Chat"])
+    `, [uuidv4(), [user], "New Chat", true])
   }
 	return response.rows[0]
 }
 const createDefaultChat = async(body)=>{
 	const { chatName } = body
-	// const users = await client.query(`SELECT username, image, id FROM users`)
+	const users = await client.query(`SELECT username, image, id FROM users`)
+  // console.log(users)
 	const response = await client.query(`
 	INSERT INTO chat (id, chatName) 
 	VALUES ($1, $2)
@@ -53,6 +62,7 @@ const updateChat = async(body) =>{
 	WHERE id = $1
 	`
 	const response = await client.query(SQL, [body.id, body.users])
+  console.log(response.rows)
 	return response.rows[0]
 }
 
@@ -61,5 +71,6 @@ module.exports = {
 	getAllChats,
 	createDefaultChat,
 	updateChat,
-  getDefaultChat
+  getDefaultChat,
+  getSingleChat
 }

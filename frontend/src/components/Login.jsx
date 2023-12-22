@@ -9,7 +9,7 @@ const Login = ({authenticate})=> {
     try {
       ev.preventDefault();
       const credentials = { username, password}
-      console.log(await authenticate(credentials))
+      await authenticate(credentials)
       
       window.location.hash = '#'
       
