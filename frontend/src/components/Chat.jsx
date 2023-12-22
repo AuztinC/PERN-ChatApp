@@ -12,9 +12,17 @@ function Chat({ auth, messages, setMessages, users, createMessage, allChats, set
     const [message, setMessage] = useState('')
     const [showEmojiPicker, setShowEmojiPicker] = useState(false)
     const [typer, setTyper] = useState({});
+    const [dotsIdx, setDotsIdx] = useState(0);
     const dummy = useRef()
     const chatRef = useRef(null)
     const incMessageRef = useRef(null)
+    
+    const dots = [
+      "...",
+      "˙..",
+      ".˙.",
+      "..˙"
+    ]
 
     useEffect(()=> {
       // console.log(incMessageRef.current)
@@ -28,7 +36,7 @@ function Chat({ auth, messages, setMessages, users, createMessage, allChats, set
     
     useEffect(()=>{
       if(message != "" && currChat){
-        socket.emit("userTyping", {user: auth.username, chatId: currChat.id})
+        socket.emit("userTyping", {username: auth.username, chatId: currChat.id})
       }
     }, [message])
     
@@ -46,9 +54,12 @@ function Chat({ auth, messages, setMessages, users, createMessage, allChats, set
         }
       }
     }, [allChats])
+    
     useEffect(()=>{
-      console.log(currChat, typer)
-      if(currChat?.id === typer.chatid){
+      if(currChat?.id === typer.chatId){
+        // console.log(currChat, typer)
+        
+        setTimeout(()=>setTyper({}), 6000);
       }
     }, [typer])
     
@@ -76,13 +87,23 @@ function Chat({ auth, messages, setMessages, users, createMessage, allChats, set
       }
       currentChatMessages = messages.filter(_message=>_message.chatid === currChat.id)
     }
-    function handleEmojiWindow(){
-      setShowEmojiPicker(!showEmojiPicker)
+    function handleEmojiWindow(value){
+      // setShowEmojiPicker(!showEmojiPicker)
+      setShowEmojiPicker(value)
     }
     function handleEmoji(emoji){
       let msg = message;
       msg += emoji.emoji
       setMessage(msg)
+    }
+    function handleDots() {
+      if (typer.username) {
+        setDotsIdx([dotsIdx + 1]);
+        if (dotsIdx > 3) {
+          setDotsIdx(0);
+        }
+        setTimeout(handleDots, 250);
+      }
     }
     function submit(ev){
       ev.preventDefault()
@@ -122,7 +143,9 @@ function Chat({ auth, messages, setMessages, users, createMessage, allChats, set
         }
         {/* Check for user typing, display bubbles */}
         {
-          
+          currChat.id === typer.chatId ? 
+          <div onLoad={handleDots} className={`w-fit p-2 rounded-xl flex bg-receivedColor}`}><span className='font-bold'>{ typer.username }</span>: {dots[dotsIdx]}</div>
+          :null
         }
         {/* dummy ref for scrolling */}
         <div ref={ dummy }></div>
@@ -131,7 +154,7 @@ function Chat({ auth, messages, setMessages, users, createMessage, allChats, set
       {
         auth.id ? 
         <form onSubmit={ submit } className='flex justify-center h-10'>
-          <div className='relative border-2 border-transparent p-0.5 mr-5 rounded-[50%] bg-black flex items-center pointer-events-hand hover:border-accentColor transition ease-in-out delay-150' onClick={handleEmojiWindow}>
+          <div className='relative border-2 border-transparent p-0.5 mr-5 rounded-[50%] bg-black flex items-center pointer-events-hand hover:border-accentColor transition ease-in-out delay-150' onClick={()=>handleEmojiWindow(true)} onMouseLeave={()=>handleEmojiWindow(false)}>
             <IconContext.Provider value={{ color: "#ffff00c8", size: "2em" }}>
               <div>
                 <BsEmojiSmileFill />
