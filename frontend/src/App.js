@@ -20,7 +20,7 @@ function App() {
   }
   
   
-  socket.on('recieveMessage', newMessage=>{
+  socket.on('receiveMessage', newMessage=>{
     // if(allChats.find(chat=>chat.id === newMessage.chatId)){
     //   setMessageRecieved(true)
     //   api.getAllMessages(setMessages)

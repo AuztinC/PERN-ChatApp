@@ -36,18 +36,21 @@ io.on('connection', (socket)=>{
     singleChat.users.forEach(user=>{
       const sendUserSocket = activeUsers.get(user.id)
       if(sendUserSocket){
-        socket.to(sendUserSocket).emit("messageRecieved", newMessage)
+        socket.to(sendUserSocket).emit("messageReceived", newMessage)
         // console.log("user is online", sendUserSocket)
       } else {
         // console.log("user is offline")
       }
     })
-    socket.broadcast.emit("recieveMessage", newMessage)
+    socket.broadcast.emit("receiveMessage", newMessage)
   })
   
   
   socket.on('userTyping', (chatInfo)=>{
     socket.broadcast.emit("userTyping", chatInfo)
+  })
+  socket.on("userStopTyping", (chatInfo)=>{
+    socket.broadcast.emit("userStopTyping", chatInfo)
   })
 })
 
@@ -66,7 +69,7 @@ const seed = async()=> {
       password VARCHAR(100),
       image TEXT
     );
-
+    
     CREATE TABLE chat(
       id uuid PRIMARY KEY,
       chatName TEXT, 

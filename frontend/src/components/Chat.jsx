@@ -1,9 +1,14 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState, useRef, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
 import { socket } from '../socket'
 import Picker from 'emoji-picker-react'
 import { BsEmojiSmileFill } from 'react-icons/bs'
 import { IconContext } from "react-icons";
+import BouncingDotsAnimation from './BouncingDotsAnimation'
+
+
+
+
 
 function Chat({ auth, messages, setMessages, users, createMessage, allChats, setAllUsers }) {
     const { id } = useParams()
@@ -12,17 +17,15 @@ function Chat({ auth, messages, setMessages, users, createMessage, allChats, set
     const [message, setMessage] = useState('')
     const [showEmojiPicker, setShowEmojiPicker] = useState(false)
     const [typer, setTyper] = useState({});
-    const [dotsIdx, setDotsIdx] = useState(0);
+    const [displayChat, setDisplayChat] = useState(false);
     const dummy = useRef()
     const chatRef = useRef(null)
     const incMessageRef = useRef(null)
     
-    const dots = [
-      "...",
-      "˙..",
-      ".˙.",
-      "..˙"
-    ]
+    
+    
+    
+    
 
     useEffect(()=> {
       // console.log(incMessageRef.current)
@@ -30,6 +33,7 @@ function Chat({ auth, messages, setMessages, users, createMessage, allChats, set
         setTimeout(dummy.current.scrollIntoView({block: "end", inline: "end", behavior: "smooth"}), 1000)
         currentChatMessages = messages.filter(_message=>_message.chatid === currChat.id)
       } else {
+        console.log("message not received")
         // set new notification
       }
     }, [messages])
@@ -37,15 +41,23 @@ function Chat({ auth, messages, setMessages, users, createMessage, allChats, set
     useEffect(()=>{
       if(message != "" && currChat){
         socket.emit("userTyping", {username: auth.username, chatId: currChat.id})
+      } else if (message === ""){
+        // socket.emit("userStopTyping", {username: auth.username, chatId: currChat.id})
       }
     }, [message])
     
     useEffect(()=>{
+      if(id){
+        setDisplayChat(true);
+      } else {
+        setDisplayChat(false)
+      }
       if(id && dummy.current){
       dummy.current.scrollIntoView({block: "end", inline: "end", behavior: "smooth"})
       } 
 
     }, [id])
+    
     useEffect(()=>{
       if(allChats.length > 0){
         currChat = allChats.find(chat=>chat.chatname === "defaultChat")
@@ -55,24 +67,42 @@ function Chat({ auth, messages, setMessages, users, createMessage, allChats, set
       }
     }, [allChats])
     
-    useEffect(()=>{
-      if(currChat?.id === typer.chatId){
-        // console.log(currChat, typer)
-        
-        setTimeout(()=>setTyper({}), 6000);
-      }
-    }, [typer])
+    // useEffect(()=>{
+    //   console.log(typer)
+      
+    //   if(currChat?.id === typer.chatId){
+    //     setTimeout(()=>setTyper({}), 6000);
+    //   }
+    // }, [typer.username])
     
     
     
-    socket.on('recieveMessage', newMessage=>{
+    
+    // const chatBubbles = useCallback(()=>{
+    //   console.log("inside chatbubbles")
+    //   if(currChat?.id === typer.chatId){
+    //     let dotTimer = setTimeout(()=>setTyper({}), 6000);
+    //     handleDots(dotTimer)
+    //   }
+    // }, [typer.username])
+    
+    
+    
+    socket.on('receiveMessage', newMessage=>{
       setMessages([...messages, newMessage])
       incMessageRef.current = newMessage;
+      
+      // if (!users.find(user=>user.id === newMessage.userid)) {
+        
+      // }
       
     })
     
     socket.on("userTyping", chatInfo=>{
-      setTyper(chatInfo)
+      if(!typer.username){
+        setTyper(chatInfo)
+        
+      }
     })
     
     if(!id && allChats.length > 0){
@@ -83,28 +113,35 @@ function Chat({ auth, messages, setMessages, users, createMessage, allChats, set
     } else if(auth.id && id && allChats.length > 0) {
       currChat = allChats.find(chat=>chat.id === id)
       if(!currChat){
-        return 'loading chat...'
+        return 'loading chat...';
       }
       currentChatMessages = messages.filter(_message=>_message.chatid === currChat.id)
     }
+    
     function handleEmojiWindow(value){
       // setShowEmojiPicker(!showEmojiPicker)
       setShowEmojiPicker(value)
     }
+    
     function handleEmoji(emoji){
       let msg = message;
       msg += emoji.emoji
       setMessage(msg)
     }
-    function handleDots() {
-      if (typer.username) {
-        setDotsIdx([dotsIdx + 1]);
-        if (dotsIdx > 3) {
-          setDotsIdx(0);
-        }
-        setTimeout(handleDots, 250);
-      }
-    }
+    
+    // function handleDots(timer) {
+    //   console.log(timer)
+    //   let dotTimer = setTimeout(handleDots, 250);
+    //   if (typer.username != null) {
+    //     setDotsIdx([dotsIdx + 1]);
+    //     if (dotsIdx > 3) {
+    //       setDotsIdx(0);
+    //     }
+    //   } else {
+    //     clearTimeout(dotTimer)
+    //   }
+      
+    // }
     function submit(ev){
       ev.preventDefault()
       const newMessage = {
@@ -116,6 +153,7 @@ function Chat({ auth, messages, setMessages, users, createMessage, allChats, set
       setMessage('')
       incMessageRef.current = newMessage
     }
+    
     if(!users || !messages || !currentChatMessages){
       // console.log("somethings null")
       return null
@@ -144,7 +182,7 @@ function Chat({ auth, messages, setMessages, users, createMessage, allChats, set
         {/* Check for user typing, display bubbles */}
         {
           currChat.id === typer.chatId ? 
-          <div onLoad={handleDots} className={`w-fit p-2 rounded-xl flex bg-receivedColor}`}><span className='font-bold'>{ typer.username }</span>: {dots[dotsIdx]}</div>
+          <BouncingDotsAnimation typer={typer}/>
           :null
         }
         {/* dummy ref for scrolling */}
@@ -152,7 +190,7 @@ function Chat({ auth, messages, setMessages, users, createMessage, allChats, set
       </div>
       {/* Check if logged in, display input form */}
       {
-        auth.id ? 
+        auth.id && displayChat ? 
         <form onSubmit={ submit } className='flex justify-center h-10'>
           <div className='relative border-2 border-transparent p-0.5 mr-5 rounded-[50%] bg-black flex items-center pointer-events-hand hover:border-accentColor transition ease-in-out delay-150' onClick={()=>handleEmojiWindow(true)} onMouseLeave={()=>handleEmojiWindow(false)}>
             <IconContext.Provider value={{ color: "#ffff00c8", size: "2em" }}>
