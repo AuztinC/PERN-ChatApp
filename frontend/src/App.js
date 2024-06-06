@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 // import { io } from "socket.io-client";
 import api from './api';
 import Register from './components/Register';
@@ -14,6 +14,9 @@ function App() {
   const [notifications, setNotifications] = useState([])
   const [users, setAllUsers] = useState([])
   const [allChats, setAllChats] = useState([])
+  const [showRegister, setShowRegister] = useState(false)
+  const newRegArrow = useRef();
+  // const regBox = useRef();
   
   const attemptLoginWithToken = async() =>{
     await api.attemptLoginWithToken(setAuth)
@@ -54,6 +57,9 @@ function App() {
       // window.location.hash = allChats[0].id;
     }
   }, [allChats])
+  useEffect(()=>{
+    console.log(showRegister)
+  }, [showRegister])
   
   const createMessage =(message)=>{
     api.createMessage(message, setMessages, messages)
@@ -84,6 +90,31 @@ function App() {
     window.localStorage.removeItem('token')
     window.location.hash = '#'
   }
+  
+  function handleShowRegister(click){
+    setShowRegister(!showRegister)
+    
+    
+  }
+  useEffect(()=>{
+    console.log(newRegArrow.current)
+    if(showRegister && newRegArrow) {
+      newRegArrow.current.classList.remove("animate-rotateUp")
+      newRegArrow.current.classList.add("animate-rotateDown")
+      newRegArrow.current.style.transform = 'rotate(0)'
+      
+      // regBox.current.classList.remove("animate-shrink")
+      // regBox.current.classList.add("animate-grow")
+      
+    } else if (!showRegister && newRegArrow) {
+      newRegArrow.current.classList.remove("animate-rotateDown")
+      newRegArrow.current.classList.add("animate-rotateUp")
+      newRegArrow.current.style.transform = 'rotate(180deg)'
+      
+      // regBox.current.classList.remove("animate-grow")
+      // regBox.current.classList.add("animate-shrink")
+    } 
+  }, [showRegister])
 
   return (
     <div className='bg-backgroundColor h-screen w-screen'>
@@ -92,7 +123,7 @@ function App() {
         :null
       }
       {
-      <div className='h-full flex items-center pl-5 pr-5 gap-5'>
+      <div className='h-full flex flex-col md:flex-row items-center pl-5 pr-5 gap-5'>
           {
             auth.id ? 
             <div className='w-1/3 border-accentColor border-4 h-[95%] rounded-xl p-3 bg-boxColor flex items-end'>
@@ -100,14 +131,24 @@ function App() {
               <Users users={ users } allChats={ allChats } createChat={ createChat } auth={ auth } logout={ logout }/>
             </div>
             : 
-            <div className='w-1/3 border-accentColor border-4 h-[95%] rounded-xl p-3 bg-boxColor  overflow-scroll'>
+            <div className='w-[100%] border-accentColor border-4 h-[95%] rounded-xl p-3 bg-boxColor  overflow-scroll'>
               <div className='flex flex-col gap-20'>
                 <Login authenticate={authenticate}/>
-                <Register registerAccount={registerAccount}/>
+                <div>
+                  <span className='text-red-600 underline ' onClick={handleShowRegister}>
+                    New User? Register Here 
+                      <svg ref={newRegArrow} className='h-[10px] inline px-2' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 129 129">
+                        <path d="M121.3 34.6c-1.6-1.6-4.2-1.6-5.8 0l-51 51.1-51.1-51.1c-1.6-1.6-4.2-1.6-5.8 0-1.6 1.6-1.6 4.2 0 5.8l53.9 53.9c.8.8 1.8 1.2 2.9 1.2 1 0 2.1-.4 2.9-1.2l53.9-53.9c1.7-1.6 1.7-4.2.1-5.8z"></path>
+                      </svg>
+                  </span>
+                  {/* <div ref={regBox} className='h-0'> */}
+                    <Register showRegister={showRegister} registerAccount={registerAccount}/>
+                  {/* </div> */}
+                </div>
               </div>
             </div>
           }
-        <div className='w-2/3 border-accentColor border-4 h-[95%] rounded-xl p-3 bg-boxColor flex justify-end flex-col'>
+        <div className='w-[100%] md:w-2/3 border-accentColor border-4 h-[20%] md:h-[95%] rounded-xl p-3 bg-boxColor flex justify-end flex-col'>
           <Routes>
             <Route path={`/chat/:id`} element={ <Chat auth={ auth } setMessages={ setMessages } messages={ messages } users={ users } setAllUsers={ setAllUsers } createMessage={ createMessage } allChats={ allChats } updateChat={ updateChat }/> }/>
             <Route path={`/`} element={ <Chat auth={ auth } setMessages={ setMessages } messages={ messages } users={ users } createMessage={ createMessage } allChats={ allChats } updateChat={ updateChat }/> }/>
