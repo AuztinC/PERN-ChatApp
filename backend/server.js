@@ -89,7 +89,7 @@ const seed = async()=> {
     );
     `
     await client.query(SQL)
-    const defaultChat = await createDefaultChat({chatName: "defaultChat"})
+    const defaultChat = await createDefaultChat({chatName: "Lobby"})
     const [Ethyl, Cheryl, Monique, Moe, Terry, Joe, Donk] = await Promise.all([
       createUser({username: "ethyl", password: "1234"}),
       createUser({username: "cheryl", password: "1234"}),

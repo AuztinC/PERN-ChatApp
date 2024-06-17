@@ -19,7 +19,7 @@ const getSingleChat = async(id) =>{
 }
 
 const getDefaultChat = async()=> {
-  const SQL = `SELECT * FROM chat WHERE chatName = 'defaultChat'`
+  const SQL = `SELECT * FROM chat WHERE chatName = 'Lobby'`
   const response = await client.query(SQL)
   return response.rows
 }

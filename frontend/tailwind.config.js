@@ -37,12 +37,12 @@ content: [ './index.html', './src/**/*.{js,jsx,ts,tsx}'],
         },
         
         grow: {
-          from: { height: '0%'},
-          to: { height: '100%'},
+          from: { maxHeight: '0px', opacity: '0'},
+          to: { maxHeight: '40vh', opacity: '1'},
         },
         shrink: {
-          from: { height: '100%'},
-          to: { height: '0%'},
+          from: { maxHeight: '40vh', opacity: '1'},
+          to: { maxHeight: '0px', opacity: '0'},
         }
       },
       animation: {

@@ -33,7 +33,7 @@ function Chat({ auth, messages, setMessages, users, createMessage, allChats, set
         setTimeout(dummy.current.scrollIntoView({block: "end", inline: "end", behavior: "smooth"}), 1000)
         currentChatMessages = messages.filter(_message=>_message.chatid === currChat.id)
       } else {
-        console.log("message not received")
+        // console.log("message not received")
         // set new notification
       }
     }, [messages])
@@ -42,15 +42,16 @@ function Chat({ auth, messages, setMessages, users, createMessage, allChats, set
       if(message != "" && currChat){
         socket.emit("userTyping", {username: auth.username, chatId: currChat.id})
       } else if (message === ""){
-        // socket.emit("userStopTyping", {username: auth.username, chatId: currChat.id})
+        socket.emit("userStopTyping", {username: auth.username})
       }
     }, [message])
     
     useEffect(()=>{
+      // console.log("id change")
       if(id){
         setDisplayChat(true);
       } else {
-        setDisplayChat(false)
+        // setDisplayChat(false)
       }
       if(id && dummy.current){
       dummy.current.scrollIntoView({block: "end", inline: "end", behavior: "smooth"})
@@ -59,33 +60,36 @@ function Chat({ auth, messages, setMessages, users, createMessage, allChats, set
     }, [id])
     
     useEffect(()=>{
-      if(allChats.length > 0){
-        currChat = allChats.find(chat=>chat.chatname === "defaultChat")
+      
+      if(!id && allChats.length > 0){
+        currChat = allChats.find(chat=>chat.chatname === "Lobby")
         if(currChat){
           currentChatMessages = messages.filter(_message=>currChat.id === _message.chatid)
         }
+      } else if(auth.id && id && allChats.length > 1) {
+        currChat = allChats.find(chat=>chat.id === id)
+        if(!currChat){
+          console.log(currChat)
+          return 'loading chat...';
+        }
+        currentChatMessages = messages.filter(_message=>_message.chatid === currChat.id)
       }
     }, [allChats])
     
-    // useEffect(()=>{
-    //   console.log(typer)
-      
-    //   if(currChat?.id === typer.chatId){
-    //     setTimeout(()=>setTyper({}), 6000);
-    //   }
-    // }, [typer.username])
     
-    
-    
-    
-    // const chatBubbles = useCallback(()=>{
-    //   console.log("inside chatbubbles")
-    //   if(currChat?.id === typer.chatId){
-    //     let dotTimer = setTimeout(()=>setTyper({}), 6000);
-    //     handleDots(dotTimer)
-    //   }
-    // }, [typer.username])
-    
+    if(!id && allChats.length > 0){
+      currChat = allChats.find(chat=>chat.chatname === "Lobby")
+      if(currChat){
+        currentChatMessages = messages.filter(_message=>currChat.id === _message.chatid)
+      }
+    } else if(auth.id && id && allChats.length > 1) {
+      currChat = allChats.find(chat=>chat.id === id)
+      if(!currChat){
+        console.log(currChat)
+        return 'loading chat...';
+      }
+      currentChatMessages = messages.filter(_message=>_message.chatid === currChat.id)
+    }
     
     
     socket.on('receiveMessage', newMessage=>{
@@ -104,19 +108,12 @@ function Chat({ auth, messages, setMessages, users, createMessage, allChats, set
         
       }
     })
+    socket.on("userStopTyping", chatInfo=>{
+        setTyper({})
+        
+    })
     
-    if(!id && allChats.length > 0){
-      currChat = allChats.find(chat=>chat.chatname === "defaultChat")
-      if(currChat){
-        currentChatMessages = messages.filter(_message=>currChat.id === _message.chatid)
-      }
-    } else if(auth.id && id && allChats.length > 0) {
-      currChat = allChats.find(chat=>chat.id === id)
-      if(!currChat){
-        return 'loading chat...';
-      }
-      currentChatMessages = messages.filter(_message=>_message.chatid === currChat.id)
-    }
+    
     
     function handleEmojiWindow(value){
       // setShowEmojiPicker(!showEmojiPicker)
@@ -129,19 +126,6 @@ function Chat({ auth, messages, setMessages, users, createMessage, allChats, set
       setMessage(msg)
     }
     
-    // function handleDots(timer) {
-    //   console.log(timer)
-    //   let dotTimer = setTimeout(handleDots, 250);
-    //   if (typer.username != null) {
-    //     setDotsIdx([dotsIdx + 1]);
-    //     if (dotsIdx > 3) {
-    //       setDotsIdx(0);
-    //     }
-    //   } else {
-    //     clearTimeout(dotTimer)
-    //   }
-      
-    // }
     function submit(ev){
       ev.preventDefault()
       const newMessage = {
@@ -160,10 +144,10 @@ function Chat({ auth, messages, setMessages, users, createMessage, allChats, set
     }
   return (
     <div>
-      <div className='overflow-y-scroll  max-h-[87vh]' id='chatBox' ref={ chatRef }>
+      <div className='relative overflow-y-scroll  max-h-[87vh]' id='chatBox' ref={ chatRef }>
         {
           currChat.isgroup ? 
-          <button>Add people</button> // add new people to your group chat
+          <button className='absolute top-0 left-0'>Add people</button> // add new people to your group chat
           : null
         }
         { currentChatMessages.length > 0 && users.length > 0 ? 
