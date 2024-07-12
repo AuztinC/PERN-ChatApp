@@ -132,7 +132,7 @@ function App() {
             <div className='w-[100%] border-accentColor border-4 h-[95%] rounded-xl p-3 bg-boxColor  overflow-scroll'>
               <div className='flex flex-col gap-5'>
                 <Login authenticate={authenticate}/>
-                  <span className='text-red-600 underline ' onClick={handleShowRegister}>
+                  <span className='w-[fit-content] text-red-600 underline hover:cursor-pointer ' onClick={handleShowRegister}>
                     New User? Register Here 
                       <svg ref={newRegArrow} className='h-[10px] inline px-2' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 129 129">
                         <path d="M121.3 34.6c-1.6-1.6-4.2-1.6-5.8 0l-51 51.1-51.1-51.1c-1.6-1.6-4.2-1.6-5.8 0-1.6 1.6-1.6 4.2 0 5.8l53.9 53.9c.8.8 1.8 1.2 2.9 1.2 1 0 2.1-.4 2.9-1.2l53.9-53.9c1.7-1.6 1.7-4.2.1-5.8z"></path>

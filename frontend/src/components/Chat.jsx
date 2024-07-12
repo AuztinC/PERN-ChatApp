@@ -143,8 +143,9 @@ function Chat({ auth, messages, setMessages, users, createMessage, allChats, set
       return null
     }
   return (
-    <div>
-      <div className='relative overflow-y-scroll  max-h-[87vh]' id='chatBox' ref={ chatRef }>
+    <div className='overflow-hidden h-[100%]'>
+      <div className='static text-center top-0 left-0 font-bold z-10 bg-boxColor'>{currChat.chatname ? `${currChat.chatname}` : `no selected chat`}</div>
+      <div className='relative overflow-y-scroll h-[87%] flex flex-col justify-end'  id='chatBox' ref={ chatRef }>
         {
           currChat.isgroup ? 
           <button className='absolute top-0 left-0'>Add people</button> // add new people to your group chat
