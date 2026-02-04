@@ -22,11 +22,6 @@ function Chat({ auth, messages, setMessages, users, createMessage, allChats, set
     const chatRef = useRef(null)
     const incMessageRef = useRef(null)
     
-    
-    
-    
-    
-
     useEffect(()=> {
       // console.log(incMessageRef.current)
       if(incMessageRef.current?.chatid === id && dummy.current || currChat && !id && incMessageRef.current?.chatid === currChat?.id){
@@ -113,8 +108,6 @@ function Chat({ auth, messages, setMessages, users, createMessage, allChats, set
         
     })
     
-    
-    
     function handleEmojiWindow(value){
       // setShowEmojiPicker(!showEmojiPicker)
       setShowEmojiPicker(value)
@@ -144,7 +137,7 @@ function Chat({ auth, messages, setMessages, users, createMessage, allChats, set
     }
   return (
     <div className='overflow-hidden h-[100%]'>
-      <div className='static text-center top-0 left-0 font-bold z-10 bg-boxColor'>{currChat.chatname ? `${currChat.chatname}` : `no selected chat`}</div>
+      {/* <div className='static text-center top-0 left-0 font-bold z-10 bg-boxColor'>{currChat.chatname ? `${currChat.chatname}` : `no selected chat`}</div> */}
       <div className='relative overflow-y-scroll h-[87%] flex flex-col justify-end'  id='chatBox' ref={ chatRef }>
         {
           currChat.isgroup ? 
